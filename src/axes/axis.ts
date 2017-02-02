@@ -87,6 +87,18 @@ export class Axis<D> extends Component {
     this._scale.offUpdate(this._rescaleCallback);
   }
 
+  public entitiesAt(queryPoint: Point) {
+    const width = this.width();
+    const height = this.height();
+    const offset = this.originToSVG();
+
+    const tickValues = this.isHorizontal() ? this._getTickValues() : this._getTickValues().reverse();
+    const stepWidth = ( this.isHorizontal() ? width : height ) / (tickValues.length || 1);
+    const queryDimension = this.isHorizontal() ? queryPoint.x : queryPoint.y;
+
+    return tickValues[Math.floor(queryDimension / stepWidth)]
+  }
+
   protected _computeWidth() {
     // to be overridden by subclass logic
     return this._maxLabelTickLength();

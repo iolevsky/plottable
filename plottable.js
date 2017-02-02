@@ -1,5 +1,5 @@
 /*!
-Plottable 2.8.0 (https://github.com/palantir/plottable)
+Plottable 2.7.0 (https://github.com/palantir/plottable)
 Copyright 2014-2017 Palantir Technologies
 Licensed under MIT (https://github.com/palantir/plottable/blob/master/LICENSE)
 */
@@ -976,7 +976,7 @@ var Plottable;
 })(Plottable || (Plottable = {}));
 var Plottable;
 (function (Plottable) {
-    Plottable.version = "2.8.0";
+    Plottable.version = "2.7.0";
 })(Plottable || (Plottable = {}));
 var Plottable;
 (function (Plottable) {
@@ -3824,6 +3824,15 @@ var Plottable;
         Axis.prototype.destroy = function () {
             _super.prototype.destroy.call(this);
             this._scale.offUpdate(this._rescaleCallback);
+        };
+        Axis.prototype.entitiesAt = function (queryPoint) {
+            var width = this.width();
+            var height = this.height();
+            var offset = this.originToSVG();
+            var tickValues = this.isHorizontal() ? this._getTickValues() : this._getTickValues().reverse();
+            var stepWidth = (this.isHorizontal() ? width : height) / (tickValues.length || 1);
+            var queryDimension = this.isHorizontal() ? queryPoint.x : queryPoint.y;
+            return tickValues[Math.floor(queryDimension / stepWidth)];
         };
         Axis.prototype._computeWidth = function () {
             // to be overridden by subclass logic

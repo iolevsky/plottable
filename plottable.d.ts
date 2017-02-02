@@ -1908,6 +1908,7 @@ declare namespace Plottable {
          */
         constructor(scale: Scale<D, number>, orientation: AxisOrientation);
         destroy(): void;
+        entitiesAt(queryPoint: Point): D;
         protected _computeWidth(): number;
         protected _computeHeight(): number;
         requestedSpace(offeredWidth: number, offeredHeight: number): SpaceRequest;

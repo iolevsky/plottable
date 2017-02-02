@@ -3825,6 +3825,15 @@ var Plottable;
             _super.prototype.destroy.call(this);
             this._scale.offUpdate(this._rescaleCallback);
         };
+        Axis.prototype.entitiesAt = function (queryPoint) {
+            var width = this.width();
+            var height = this.height();
+            var offset = this.originToSVG();
+            var tickValues = this.isHorizontal() ? this._getTickValues() : this._getTickValues().reverse();
+            var stepWidth = (this.isHorizontal() ? width : height) / (tickValues.length || 1);
+            var queryDimension = this.isHorizontal() ? queryPoint.x : queryPoint.y;
+            return tickValues[Math.floor(queryDimension / stepWidth)];
+        };
         Axis.prototype._computeWidth = function () {
             // to be overridden by subclass logic
             return this._maxLabelTickLength();
