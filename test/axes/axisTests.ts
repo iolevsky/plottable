@@ -6,7 +6,7 @@ describe("Axis", () => {
   const verticalOrientations: Plottable.AxisOrientation[] = ["left", "right"];
   const orientations = horizontalOrientations.concat(verticalOrientations);
 
-  const isHorizOrient = (orientation: Plottable.AxisOrientation) => horizontalOrientations.indexOf(orientation) > -1;
+  const isHorizontal = (orientation: Plottable.AxisOrientation) => horizontalOrientations.indexOf(orientation) > -1;
   const numAttr = TestMethods.numAttr;
 
   horizontalOrientations.forEach((horizontalOrientation) => {
@@ -59,7 +59,7 @@ describe("Axis", () => {
       let axis = new Plottable.Axis(scale, orientation);
       axis.renderTo(svg);
 
-      let relevantDimensionF = () => isHorizOrient(orientation) ? axis.height() : axis.width();
+      let relevantDimensionF = () => isHorizontal(orientation) ? axis.height() : axis.width();
 
       let axisSize = axis.innerTickLength() + axis.margin();
       assert.strictEqual(relevantDimensionF(), axisSize, "axis size is the tick length and the margin");
@@ -395,12 +395,12 @@ describe("Axis", () => {
 
         let axisPointX = (index: number) => {
           let correspRect = d3.select(annotationRects[0][index]);
-          return isHorizOrient(orientation) ? numAttr(correspRect, "x") : (orientation === "left" ? axis.width() : 0);
+          return isHorizontal(orientation) ? numAttr(correspRect, "x") : (orientation === "left" ? axis.width() : 0);
         };
 
         let axisPointY = (index: number) => {
           let correspRect = d3.select(annotationRects[0][index]);
-          return isHorizOrient(orientation) ? (orientation === "top" ? axis.height() : 0) : numAttr(correspRect, "y");
+          return isHorizontal(orientation) ? (orientation === "top" ? axis.height() : 0) : numAttr(correspRect, "y");
         };
 
         annotationCircles.each(function (d, i) {
@@ -454,7 +454,7 @@ describe("Axis", () => {
 
         assert.strictEqual(annotationRects.size(), annotatedTicks.length, "same number of annotation rects as ticks");
 
-        let scaleAttribute = isHorizOrient(orientation) ? "x" : "y";
+        let scaleAttribute = isHorizontal(orientation) ? "x" : "y";
 
         annotationRects.each(function (d, i) {
           let annotationRect = d3.select(this);
@@ -523,8 +523,8 @@ describe("Axis", () => {
         let firstAnnotationRect = d3.select(annotationRects[0][0]);
         let secondAnnotationRect = d3.select(annotationRects[0][1]);
 
-        let positionAttr = isHorizOrient(orientation) ? "y" : "x";
-        let offsetAttr = isHorizOrient(orientation) ? "height" : "width";
+        let positionAttr = isHorizontal(orientation) ? "y" : "x";
+        let offsetAttr = isHorizontal(orientation) ? "height" : "width";
 
         assert.strictEqual(Math.abs(numAttr(secondAnnotationRect, positionAttr) - numAttr(firstAnnotationRect, positionAttr)),
           numAttr(firstAnnotationRect, offsetAttr), "rectangle offset by previous rectangle");
@@ -648,5 +648,9 @@ describe("Axis", () => {
 
     axis.destroy();
     svg.remove();
+  });
+
+  describe("entityNearest", () => {
+
   });
 });

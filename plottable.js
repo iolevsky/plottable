@@ -3825,14 +3825,29 @@ var Plottable;
             _super.prototype.destroy.call(this);
             this._scale.offUpdate(this._rescaleCallback);
         };
-        Axis.prototype.entitiesAt = function (queryPoint) {
-            var width = this.width();
-            var height = this.height();
-            var offset = this.originToSVG();
-            var tickValues = this.isHorizontal() ? this._getTickValues() : this._getTickValues().reverse();
-            var stepWidth = (this.isHorizontal() ? width : height) / (tickValues.length || 1);
-            var queryDimension = this.isHorizontal() ? queryPoint.x : queryPoint.y;
-            return tickValues[Math.floor(queryDimension / stepWidth)];
+        Axis.prototype.entityNearest = function (queryPoint) {
+            var _this = this;
+            var invertedQueryDimension = this._scale.invertedTransformation(this.isHorizontal() ? queryPoint.x : queryPoint.y);
+            var tickValues = this._getTickValues();
+            var invertedTickValues = tickValues.map(function (tickValue) {
+                return _this._scale.invertedTransformation(_this._scale.scale(tickValue));
+            });
+            var closestInvertedTickIndex = 0;
+            var closestDistance = Infinity;
+            for (var i = 0; i < invertedTickValues.length; i++) {
+                var invertedTickValue = invertedTickValues[i];
+                var distance = Math.abs(invertedTickValue - invertedQueryDimension);
+                if (distance < closestDistance) {
+                    closestDistance = distance;
+                    closestInvertedTickIndex = i;
+                }
+            }
+            var value = tickValues[closestInvertedTickIndex];
+            var position = {
+                x: this.isHorizontal() ? this._scale.scale(value) : null,
+                y: this.isHorizontal() ? null : this._scale.scale(value),
+            };
+            return { axis: this, value: value, position: position };
         };
         Axis.prototype._computeWidth = function () {
             // to be overridden by subclass logic
@@ -8311,6 +8326,9 @@ var Plottable;
                 }
             };
         }
+        XYPlot.prototype.entitiesIn = function (xRangeOrBounds, yRange) {
+            throw new Error("entitiesIn should be implemented by the sublcass");
+        };
         XYPlot.prototype.entityNearest = function (queryPoint) {
             // by default, the entity index stores position information in the data space
             // the default impelentation of the entityNearest must convert the chart bounding

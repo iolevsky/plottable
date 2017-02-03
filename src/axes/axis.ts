@@ -34,7 +34,7 @@ export class Axis<D> extends Component {
   protected _tickMarkContainer: d3.Selection<void>;
   protected _tickLabelContainer: d3.Selection<void>;
   protected _baseline: d3.Selection<void>;
-  protected _scale: Scale<D, number>;
+  protected _scale: TransformableScale<D, number>;
   private _formatter: Formatter;
   private _orientation: AxisOrientation;
   private _endTickLength = 5;
@@ -63,7 +63,7 @@ export class Axis<D> extends Component {
   constructor(scale: Scale<D, number>, orientation: AxisOrientation) {
     super();
     if (scale == null || orientation == null) { throw new Error("Axis requires a scale and orientation"); }
-    this._scale = scale;
+    this._scale = scale as TransformableScale<D, number>;
     this.orientation(orientation);
     this._setDefaultAlignment();
     this.addClass("axis");
@@ -87,16 +87,33 @@ export class Axis<D> extends Component {
     this._scale.offUpdate(this._rescaleCallback);
   }
 
-  public entitiesAt(queryPoint: Point) {
-    const width = this.width();
-    const height = this.height();
-    const offset = this.originToSVG();
+  public entityNearest(queryPoint: Point): { axis: Axis<D>, value: D, position: Point } {
+    const invertedQueryDimension = this._scale.invertedTransformation(
+      this.isHorizontal() ? queryPoint.x : queryPoint.y);
 
-    const tickValues = this.isHorizontal() ? this._getTickValues() : this._getTickValues().reverse();
-    const stepWidth = ( this.isHorizontal() ? width : height ) / (tickValues.length || 1);
-    const queryDimension = this.isHorizontal() ? queryPoint.x : queryPoint.y;
+    const tickValues = this._getTickValues();
+    const invertedTickValues = tickValues.map((tickValue) => {
+      return this._scale.invertedTransformation(this._scale.scale(tickValue));
+    });
 
-    return tickValues[Math.floor(queryDimension / stepWidth)]
+    let closestInvertedTickIndex = 0;
+    let closestDistance = Infinity;
+    for (let i = 0; i < invertedTickValues.length; i ++) {
+      const invertedTickValue = invertedTickValues[i];
+      const distance = Math.abs(invertedTickValue - invertedQueryDimension);
+      if (distance < closestDistance) {
+        closestDistance = distance;
+        closestInvertedTickIndex = i;
+      }
+    }
+
+    const value = tickValues[closestInvertedTickIndex];
+    const position = {
+      x: this.isHorizontal() ? this._scale.scale(value) : null,
+      y: this.isHorizontal() ? null : this._scale.scale(value),
+    };
+
+    return { axis: this, value, position };
   }
 
   protected _computeWidth() {

@@ -90,6 +90,25 @@ export class XYPlot<X, Y> extends Plot {
     };
   }
 
+  /**
+   * Gets the Entities that intersect the Bounds.
+   *
+   * @param {Bounds} bounds
+   * @returns {PlotEntity[]}
+   */
+  public entitiesIn(bounds: Bounds): Plots.PlotEntity[];
+  /**
+   * Gets the Entities that intersect the area defined by the ranges.
+   *
+   * @param {Range} xRange
+   * @param {Range} yRange
+   * @returns {PlotEntity[]}
+   */
+  public entitiesIn(xRange: Range, yRange: Range): Plots.PlotEntity[];
+  public entitiesIn(xRangeOrBounds: Range | Bounds, yRange?: Range): Plots.PlotEntity[] {
+    throw new Error("entitiesIn should be implemented by the sublcass");
+  }
+
   public entityNearest(queryPoint: Point): Plots.PlotEntity {
     // by default, the entity index stores position information in the data space
     // the default impelentation of the entityNearest must convert the chart bounding

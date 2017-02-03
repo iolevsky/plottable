@@ -1883,7 +1883,7 @@ declare namespace Plottable {
         protected _tickMarkContainer: d3.Selection<void>;
         protected _tickLabelContainer: d3.Selection<void>;
         protected _baseline: d3.Selection<void>;
-        protected _scale: Scale<D, number>;
+        protected _scale: TransformableScale<D, number>;
         private _formatter;
         private _orientation;
         private _endTickLength;
@@ -1909,7 +1909,11 @@ declare namespace Plottable {
          */
         constructor(scale: Scale<D, number>, orientation: AxisOrientation);
         destroy(): void;
-        entitiesAt(queryPoint: Point): D;
+        entityNearest(queryPoint: Point): {
+            axis: Axis<D>;
+            value: D;
+            position: Point;
+        };
         protected _computeWidth(): number;
         protected _computeHeight(): number;
         requestedSpace(offeredWidth: number, offeredHeight: number): SpaceRequest;
@@ -1991,7 +1995,7 @@ declare namespace Plottable {
          * Get the scale that this axis is associated with.
          * @returns {Scale<D, number>}
          */
-        getScale(): Scale<D, number>;
+        getScale(): TransformableScale<D, number>;
         /**
          * Gets the Formatter on the Axis. Tick values are passed through the
          * Formatter before being displayed.
@@ -3460,6 +3464,21 @@ declare namespace Plottable {
          * @param {Scale} yScale The y scale to use.
          */
         constructor();
+        /**
+         * Gets the Entities that intersect the Bounds.
+         *
+         * @param {Bounds} bounds
+         * @returns {PlotEntity[]}
+         */
+        entitiesIn(bounds: Bounds): Plots.PlotEntity[];
+        /**
+         * Gets the Entities that intersect the area defined by the ranges.
+         *
+         * @param {Range} xRange
+         * @param {Range} yRange
+         * @returns {PlotEntity[]}
+         */
+        entitiesIn(xRange: Range, yRange: Range): Plots.PlotEntity[];
         entityNearest(queryPoint: Point): Plots.PlotEntity;
         /**
          * Returns the whether or not the rendering is deferred for performance boost.
